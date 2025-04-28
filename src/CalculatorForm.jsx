@@ -1,33 +1,263 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { companyLogos } from "./data/companyLogos.js";
-import dotenv from 'dotenv';
+import './index.css';
 
-const termLengthToCategory = (term) => {
-  const map = {
-    "10": "3",
-    "15": "4",
-    "20": "5",
-    "25": "6",
-    "30": "7",
-    "35": "9",
-    "40": "0"
-  };
-  return map[term] || "5"; // default to 20-year if undefined
+// Premium styles directly in component
+const styles = {
+  container: {
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "2rem",
+    background: "linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%)",
+    fontFamily: "'Segoe UI', Roboto, 'Helvetica Neue', sans-serif"
+  },
+  card: {
+    width: "100%",
+    maxWidth: "850px",
+    padding: "2.5rem",
+    borderRadius: "1.2rem",
+    boxShadow: "0 20px 60px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05)",
+    background: "rgba(255, 255, 255, 0.95)",
+    backdropFilter: "blur(10px)",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+    overflow: "hidden",
+    position: "relative"
+  },
+  cardAccent: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "8px",
+    background: "linear-gradient(90deg, #0a855c, #34d399)"
+  },
+  header: {
+    textAlign: "center",
+    marginBottom: "2.5rem"
+  },
+  title: {
+    fontSize: "2.5rem",
+    fontWeight: "800",
+    color: "#0a855c",
+    marginBottom: "0.75rem"
+  },
+  subtitle: {
+    fontSize: "1.1rem",
+    color: "#64748b",
+    fontWeight: "500"
+  },
+  form: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, 1fr)",
+    gap: "1.5rem"
+  },
+  fullWidth: {
+    gridColumn: "span 2"
+  },
+  formGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.5rem"
+  },
+  label: {
+    fontWeight: "600",
+    color: "#334155",
+    fontSize: "0.95rem"
+  },
+  input: {
+    padding: "0.75rem 1rem",
+    borderRadius: "0.75rem",
+    border: "1.5px solid #e2e8f0",
+    fontSize: "1rem",
+    backgroundColor: "#f8fafc",
+    transition: "all 0.2s ease",
+    outline: "none",
+    width: "100%",
+    boxSizing: "border-box"
+  },
+  inputFocus: {
+    border: "1.5px solid #0a855c",
+    boxShadow: "0 0 0 4px rgba(10, 133, 92, 0.15)"
+  },
+  select: {
+    padding: "0.75rem 1rem",
+    borderRadius: "0.75rem", 
+    border: "1.5px solid #e2e8f0",
+    fontSize: "1rem",
+    backgroundColor: "#f8fafc",
+    transition: "all 0.2s ease",
+    outline: "none",
+    width: "100%",
+    appearance: "none",
+    backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E\")",
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "right 1rem center",
+    backgroundSize: "1rem",
+    paddingRight: "2.5rem"
+  },
+  flexRow: {
+    display: "flex",
+    gap: "1rem"
+  },
+  button: {
+    gridColumn: "span 2",
+    marginTop: "1.5rem",
+    padding: "1rem",
+    backgroundColor: "#0a855c",
+    color: "white",
+    fontWeight: "600",
+    fontSize: "1.1rem",
+    borderRadius: "0.75rem",
+    border: "none",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    boxShadow: "0 4px 12px rgba(10, 133, 92, 0.15)",
+    outline: "none"
+  },
+  buttonHover: {
+    backgroundColor: "#056c4a",
+    transform: "translateY(-2px)",
+    boxShadow: "0 6px 16px rgba(10, 133, 92, 0.25)"
+  },
+  buttonDisabled: {
+    backgroundColor: "#9ca3af",
+    transform: "none",
+    boxShadow: "none",
+    cursor: "not-allowed",
+    opacity: "0.7"
+  },
+  resultCard: {
+    padding: "1.5rem",
+    borderRadius: "1rem",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+    border: "1px solid rgba(226, 232, 240, 0.8)",
+    display: "flex", 
+    flexDirection: "column",
+    alignItems: "center",
+    textAlign: "center",
+    backgroundColor: "white",
+    transition: "all 0.3s ease"
+  },
+  resultCardHover: {
+    transform: "translateY(-5px)",
+    boxShadow: "0 12px 24px rgba(0, 0, 0, 0.1)"
+  },
+  resultsTitle: {
+    fontSize: "1.5rem",
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: "1.5rem",
+    color: "#0f172a"
+  },
+  price: {
+    fontSize: "1.25rem",
+    fontWeight: "700",
+    color: "#0a855c",
+    margin: "0.75rem 0"
+  },
+  ctaButton: {
+    backgroundColor: "#0a855c",
+    color: "white",
+    padding: "0.5rem 1rem",
+    borderRadius: "0.5rem",
+    fontWeight: "600",
+    border: "none",
+    cursor: "pointer",
+    marginTop: "0.5rem",
+    transition: "all 0.2s ease"
+  },
+  ctaButtonHover: {
+    backgroundColor: "#056c4a"
+  },
+  modal: {
+    position: "fixed",
+    inset: "0",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: "9999",
+    backdropFilter: "blur(5px)"
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: "2rem",
+    borderRadius: "1rem",
+    maxWidth: "450px",
+    width: "100%",
+    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+  },
+  modalTitle: {
+    fontSize: "1.5rem",
+    fontWeight: "700",
+    marginBottom: "1rem",
+    color: "#0f172a"
+  },
+  modalInput: {
+    width: "100%",
+    padding: "0.75rem 1rem",
+    marginBottom: "1rem",
+    borderRadius: "0.5rem",
+    border: "1.5px solid #e2e8f0",
+    fontSize: "1rem"
+  },
+  buttonGroup: {
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: "1rem",
+    marginTop: "1rem"
+  },
+  cancelButton: {
+    padding: "0.75rem 1rem",
+    backgroundColor: "#e2e8f0",
+    color: "#475569",
+    borderRadius: "0.5rem",
+    fontWeight: "600",
+    border: "none",
+    cursor: "pointer",
+    transition: "all 0.2s ease"
+  },
+  cancelButtonHover: {
+    backgroundColor: "#cbd5e1"
+  },
+  errorMessage: {
+    marginTop: "1.25rem",
+    color: "#dc2626",
+    textAlign: "center",
+    fontSize: "0.875rem",
+    fontWeight: "500"
+  }
 };
 
-const zipToState = (zip) => {
-  return "0"; 
+const termLengthToCategory = {
+  "10": "3",
+  "15": "4",
+  "20": "5",
+  "25": "6",
+  "30": "7",
+  "35": "9",
+  "40": "0"
 };
- 
 
 const companyLogoMap = companyLogos.reduce((acc, item) => {
   acc[item.Name] = item.Logos?.Medium;
   return acc;
 }, {});
 
-
 const fallbackLogo = "https://static.wixstatic.com/media/586e34_2f4819e07ef240dfaaaa4cd81f4ad4d2~mv2.png";
+
+// Custom focus hook
+const useFocus = (initialState = false) => {
+  const [isFocused, setIsFocused] = useState(initialState);
+  
+  const handleFocus = () => setIsFocused(true);
+  const handleBlur = () => setIsFocused(false);
+  
+  return { isFocused, handleFocus, handleBlur };
+};
 
 const CalculatorForm = () => {
   const [formData, setFormData] = useState({
@@ -41,6 +271,7 @@ const CalculatorForm = () => {
     heightFeet: "",
     heightInches: "",
     weight: "",
+    alcoholUse: "N"
   });
 
   const [loading, setLoading] = useState(false);
@@ -49,6 +280,7 @@ const CalculatorForm = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState(null);
   const [userContact, setUserContact] = useState({ name: "", email: "" });
+  const [hoverIndex, setHoverIndex] = useState(null);
   const resultsRef = useRef(null);
 
   const handleChange = (e) => {
@@ -61,97 +293,98 @@ const CalculatorForm = () => {
     setError("");
     setResults([]);
 
+    const age = parseInt(formData.age) || 30;
+    const feet = parseInt(formData.heightFeet) || 5;
+    const inches = parseInt(formData.heightInches) || 10;
+    const weight = parseInt(formData.weight) || 180;
+    const heightInInches = (feet * 12) + inches;
+    const birthYear = new Date().getFullYear() - age;
+
+    let health = "PP";
+    const bmi = (weight / (heightInInches * heightInInches)) * 703;
+    if (formData.nicotinePouch === "Y") {
+      health = bmi < 30 ? "RP" : "R";
+    } else {
+      health = bmi < 25 ? "PP" : bmi < 30 ? "P" : bmi < 35 ? "RP" : "R";
+    }
+
+    // Format the payload according to the CompuLife API requirements
+    const payload = {
+      State: 5, // Changed from 0 to 5 based on curl example
+      ZipCode: formData.zipCode,
+      BirthMonth: 1,
+      Birthday: 1,
+      BirthYear: birthYear,
+      Sex: formData.sex,
+      Smoker: formData.smoker,
+      Health: health,
+      NewCategory: termLengthToCategory[formData.termLength],
+      FaceAmount: formData.faceAmount,
+      ModeUsed: "M",
+      SortOverride1: "A", // Changed from "M" to "A" based on curl example
+      LANGUAGE: "E",
+      UserLocation: "json",
+      REMOTE_IP: "74.113.157.69",
+      CompRating: "4", // Added based on curl example
+      DoHeightWeight: "ON",
+      Feet: feet,
+      Inches: inches,
+      Weight: weight,
+      DoSubAbuse: "ON",
+      Alcohol: formData.alcoholUse
+    };
+
     try {
-      const age = parseInt(formData.age || "30");
-      const feet = parseInt(formData.heightFeet || "0");
-      const inches = parseInt(formData.heightInches || "0");
-      const weight = parseInt(formData.weight || "180");
-      const heightInInches = (feet * 12) + inches;
-      const bmi = (weight / (heightInInches * heightInInches)) * 703;
-
-      let health = "PP";
-      let smokerStatus = formData.smoker;
-
-      if (formData.nicotinePouch === "Y" && formData.smoker === "N") {
-        health = "RP";
-        smokerStatus = "N";
-      }
-
-      if (formData.nicotinePouch === "Y" && formData.smoker === "Y") {
-        health = "R";
-        smokerStatus = "Y";
-      }
-
-      if (formData.nicotinePouch === "N" && formData.smoker === "Y") {
-        health = "R";
-        smokerStatus = "Y";
-      }
-
-      if (formData.nicotinePouch === "N" && formData.smoker === "N") {
-        health = (bmi < 30 && age < 60) ? "PP" : "RP";
-        smokerStatus = "N";
-      }
-
-      const payload = {
-        BirthMonth: "1", // Default if not provided
-        BirthYear: (new Date().getFullYear() - age).toString(),
-        Birthday: "1", // Default if not provided
-        CompRating: "4",
-        FaceAmount: formData.faceAmount,
-        Health: health,
-        LANGUAGE: "E",
-        ModeUsed: "M",
-        NewCategory: termLengthToCategory(formData.termLength),
-        REMOTE_IP: "74.113.157.69",
-        Sex: formData.sex,
-        Smoker: smokerStatus,
-        SortOverride1: "A",
-        State: zipToState(formData.zipCode),
-        ZipCode: formData.zipCode,
-        UserLocation: "json"
-      };
-      
-      
-      
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/quote`, {
+      const response = await fetch(`/api/quote`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({ COMPULIFE: payload }),
+        body: JSON.stringify({ COMPULIFE: payload })
       });
-      
 
-if (!response.ok) {
-  const errorText = await response.text();
-  console.error("Raw API error:", errorText);
-  throw new Error("API Error");
-}
+      if (!response.ok) {
+        let errorMessage = "Failed to retrieve quote";
+        
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.details || errorMessage;
+        } catch (e) {
+          // If response is not JSON, use text instead
+          errorMessage = await response.text();
+        }
+        
+        throw new Error(errorMessage);
+      }
 
-const json = await response.json();
-const quotes = json?.Compulife_ComparisonResults?.Compulife_Results || [];
+      const json = await response.json();
+      const quotes = json?.Compulife_ComparisonResults?.Compulife_Results || [];
 
-      const filtered = quotes.filter(
-        (q) => q.Compulife_company && (q.Compulife_premiumM || q.Compulife_premiumAnnual)
-      );
+      if (quotes.length === 0) {
+        setError("No quotes available for your profile. Please adjust your criteria and try again.");
+        setLoading(false);
+        return;
+      }
+
+      const filtered = quotes.filter(q => q.Compulife_company && (q.Compulife_premiumM || q.Compulife_premiumAnnual));
 
       const sorted = filtered.sort((a, b) => {
-        const priceA = parseFloat(a.Compulife_premiumM || a.Compulife_premiumAnnual || "9999");
-        const priceB = parseFloat(b.Compulife_premiumM || b.Compulife_premiumAnnual || "9999");
-        return priceA - priceB;
+        const aPrice = parseFloat(a.Compulife_premiumM || a.Compulife_premiumAnnual || "9999");
+        const bPrice = parseFloat(b.Compulife_premiumM || b.Compulife_premiumAnnual || "9999");
+        return aPrice - bPrice;
       });
 
       setResults(sorted.slice(0, 15));
     } catch (err) {
-      console.error("Error fetching quotes:", err);
-      setError("There was a problem retrieving your quote. Please try again later.");
+      console.error("Quote fetch failed:", err);
+      setError(err.message || "There was a problem retrieving your quote. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (results.length > 0 && resultsRef.current) {
+    if (results.length && resultsRef.current) {
       resultsRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [results]);
@@ -167,92 +400,225 @@ const quotes = json?.Compulife_ComparisonResults?.Compulife_Results || [];
 
   const handleModalSubmit = () => {
     const { name, email } = userContact;
-    const { Compulife_company } = selectedQuote;
-    const term = formData.termLength;
+    const quote = selectedQuote;
+    const safeName = encodeURIComponent(name);
+    const safeEmail = encodeURIComponent(email);
     const amount = Number(formData.faceAmount).toLocaleString();
 
-    const body = `I am interested in submitting an application for ${name}, ${term}-year term, $${amount}, ${Compulife_company}.%0D%0A%0D%0AEmail: ${email}`;
-    const mailto = `mailto:mattmims@insurems.com?subject=Quote Request - ${Compulife_company}&body=${encodeURIComponent(body)}`;
-    console.log("📧 Triggering mailto:", mailto);
+    const body = `I am interested in submitting an application for ${safeName}, ${formData.termLength}-year term, $${amount}, ${quote.Compulife_company}.%0D%0AEmail: ${safeEmail}`;
+    const mailto = `mailto:mattmims@insurems.com?subject=Quote Request - ${quote.Compulife_company}&body=${body}`;
+
     window.location.href = mailto;
     setShowModal(false);
   };
 
+  // Render focused styles for inputs
+  const renderInput = (name, value, placeholder = "", type = "text", required = true) => {
+    const focus = useFocus();
+    const inputStyle = {
+      ...styles.input,
+      ...(focus.isFocused ? styles.inputFocus : {})
+    };
+    
+    return (
+      <input 
+        type={type} 
+        name={name} 
+        value={value} 
+        placeholder={placeholder}
+        onChange={handleChange} 
+        onFocus={focus.handleFocus}
+        onBlur={focus.handleBlur}
+        style={inputStyle}
+        required={required}
+      />
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4 py-12">
+    <div style={styles.container}>
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-5xl bg-white shadow-2xl rounded-3xl px-10 py-12 border border-green-100 relative"
+        style={styles.card}
       >
-        <h2 className="text-4xl font-extrabold text-center text-[#407C51] mb-10">
-          🛡️ Life Insurance Quotes
-        </h2>
-
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <label>ZIP Code<input type="text" name="zipCode" value={formData.zipCode} onChange={handleChange} className="input" /></label>
-          <label>Age<input type="number" name="age" value={formData.age} onChange={handleChange} className="input" /></label>
-          <label>Height (ft & in)
-            <div className="flex gap-2">
-              <input type="number" name="heightFeet" placeholder="ft" value={formData.heightFeet} onChange={handleChange} className="input w-1/2" />
-              <input type="number" name="heightInches" placeholder="in" value={formData.heightInches} onChange={handleChange} className="input w-1/2" />
+        <div style={styles.cardAccent}></div>
+        <div style={styles.header}>
+          <h2 style={styles.title}>🛡️ Life Insurance Quotes</h2>
+          <p style={styles.subtitle}>Get instant, personalized term life insurance rates</p>
+        </div>
+        
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <div style={styles.formGroup}>
+            <label style={styles.label}>ZIP Code</label>
+            {renderInput("zipCode", formData.zipCode)}
+          </div>
+          
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Age</label>
+            {renderInput("age", formData.age, "", "number")}
+          </div>
+          
+          <div style={{...styles.formGroup, ...styles.fullWidth}}>
+            <label style={styles.label}>Height (ft & in)</label>
+            <div style={styles.flexRow}>
+              {renderInput("heightFeet", formData.heightFeet, "ft", "number")}
+              {renderInput("heightInches", formData.heightInches, "in", "number")}
             </div>
-          </label>
-          <label>Weight (lbs)<input type="number" name="weight" value={formData.weight} onChange={handleChange} className="input" /></label>
-          <label>Coverage Amount
-            <select name="faceAmount" value={formData.faceAmount} onChange={handleChange} className="input">
-              {[100000,200000,300000,400000,500000,750000,1000000,1500000,2000000].map(val => (
+          </div>
+          
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Weight (lbs)</label>
+            {renderInput("weight", formData.weight, "", "number")}
+          </div>
+          
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Coverage Amount</label>
+            <select 
+              name="faceAmount" 
+              value={formData.faceAmount} 
+              onChange={handleChange} 
+              style={styles.select}
+              required
+            >
+              {[100000, 200000, 300000, 400000, 500000, 750000, 1000000].map(val => (
                 <option key={val} value={val}>${val.toLocaleString()}</option>
               ))}
             </select>
-          </label>
-          <label>Term Length
-            <select name="termLength" value={formData.termLength} onChange={handleChange} className="input">
-              {[10,15,20,25,30].map(val => (
+          </div>
+          
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Term Length</label>
+            <select 
+              name="termLength" 
+              value={formData.termLength} 
+              onChange={handleChange} 
+              style={styles.select}
+              required
+            >
+              {["10", "15", "20", "25", "30", "35", "40"].map(val => (
                 <option key={val} value={val}>{val} Years</option>
               ))}
             </select>
-          </label>
-          <label>Gender
-            <select name="sex" value={formData.sex} onChange={handleChange} className="input">
+          </div>
+          
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Gender</label>
+            <select 
+              name="sex" 
+              value={formData.sex} 
+              onChange={handleChange} 
+              style={styles.select}
+              required
+            >
               <option value="M">Male</option>
               <option value="F">Female</option>
             </select>
-          </label>
-          <label>Do you smoke?
-            <select name="smoker" value={formData.smoker} onChange={handleChange} className="input">
+          </div>
+          
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Do you smoke?</label>
+            <select 
+              name="smoker" 
+              value={formData.smoker} 
+              onChange={handleChange} 
+              style={styles.select}
+              required
+            >
               <option value="N">No</option>
               <option value="Y">Yes</option>
             </select>
-          </label>
-          <label>Nicotine Pouches?
-            <select name="nicotinePouch" value={formData.nicotinePouch} onChange={handleChange} className="input">
+          </div>
+          
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Nicotine Pouches?</label>
+            <select 
+              name="nicotinePouch" 
+              value={formData.nicotinePouch} 
+              onChange={handleChange} 
+              style={styles.select}
+              required
+            >
               <option value="N">No</option>
               <option value="Y">Yes</option>
             </select>
-          </label>
-          <button type="submit" disabled={loading} className="md:col-span-2 mt-4 w-full bg-[#407C51] text-white py-3 rounded-xl font-semibold text-lg">
+          </div>
+          
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Alcohol Use?</label>
+            <select 
+              name="alcoholUse" 
+              value={formData.alcoholUse} 
+              onChange={handleChange} 
+              style={styles.select}
+              required
+            >
+              <option value="N">No</option>
+              <option value="Y">Yes</option>
+            </select>
+          </div>
+          
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              ...styles.button,
+              ...(loading ? styles.buttonDisabled : {})
+            }}
+            onMouseOver={(e) => !loading && (e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor)}
+            onMouseOut={(e) => !loading && (e.currentTarget.style.backgroundColor = styles.button.backgroundColor)}
+          >
             {loading ? "Loading..." : "Get My Quote"}
           </button>
         </form>
 
-        {error && <p className="mt-5 text-sm text-red-600 text-center">{error}</p>}
+        {error && <p style={styles.errorMessage}>{error}</p>}
 
         <AnimatePresence>
           {results.length > 0 && (
-            <motion.div ref={resultsRef} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-12">
-              <h3 className="text-xl font-bold text-gray-800 text-center mb-2">📋 Top 15 Cheapest Quotes</h3>
-              <div className="grid md:grid-cols-3 gap-6 mt-6">
-                {results.map((quote, idx) => (
-                  <div key={idx} className="bg-white border border-gray-200 rounded-xl p-6 shadow-md hover:shadow-lg transition flex flex-col items-center text-center">
-                    <img src={companyLogoMap[quote.Compulife_company] || fallbackLogo} alt={quote.Compulife_company} className="w-16 h-16 object-contain mb-4" />
-                    <p className="text-lg font-semibold text-[#407C51] mb-1">{quote.Compulife_company}</p>
-                    <p className="text-sm text-gray-500 mb-3">{quote.Compulife_product}</p>
-                    <p className="text-xl font-bold text-green-600 mb-4">
-                      {quote.Compulife_premiumM ? `$${parseFloat(quote.Compulife_premiumM).toFixed(2)} /mo` : `$${parseFloat(quote.Compulife_premiumAnnual).toFixed(2)} /yr`}
+            <motion.div 
+              ref={resultsRef} 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              exit={{ opacity: 0 }} 
+              style={{ marginTop: "3rem" }}
+            >
+              <h3 style={styles.resultsTitle}>📋 Top 15 Cheapest Quotes</h3>
+              <div style={{ 
+                display: "grid", 
+                gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", 
+                gap: "1.5rem", 
+                marginTop: "1.5rem" 
+              }}>
+                {results.map((q, i) => (
+                  <div 
+                    key={i} 
+                    style={{
+                      ...styles.resultCard,
+                      ...(hoverIndex === i ? styles.resultCardHover : {})
+                    }}
+                    onMouseEnter={() => setHoverIndex(i)}
+                    onMouseLeave={() => setHoverIndex(null)}
+                  >
+                    <img 
+                      src={companyLogoMap[q.Compulife_company] || fallbackLogo} 
+                      alt={q.Compulife_company} 
+                      style={{ width: "4rem", height: "4rem", objectFit: "contain", marginBottom: "1rem" }} 
+                    />
+                    <p style={{ fontWeight: "600", color: "#0a855c" }}>{q.Compulife_company}</p>
+                    <p style={{ color: "#64748b", fontSize: "0.9rem" }}>{q.Compulife_product}</p>
+                    <p style={styles.price}>
+                      {q.Compulife_premiumM ? 
+                        `$${parseFloat(q.Compulife_premiumM).toFixed(2)} /mo` : 
+                        `$${parseFloat(q.Compulife_premiumAnnual).toFixed(2)} /yr`}
                     </p>
-                    <button onClick={() => openQuoteForm(quote)} className="bg-[#407C51] hover:bg-[#326c43] text-white text-sm px-5 py-2 rounded-lg shadow-sm transition">
+                    <button 
+                      onClick={() => openQuoteForm(q)} 
+                      style={styles.ctaButton}
+                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = styles.ctaButtonHover.backgroundColor}
+                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = styles.ctaButton.backgroundColor}
+                    >
                       Request Coverage
                     </button>
                   </div>
@@ -263,17 +629,51 @@ const quotes = json?.Compulife_ComparisonResults?.Compulife_Results || [];
         </AnimatePresence>
 
         {showModal && selectedQuote && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
-            <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full">
-              <h3 className="text-xl font-bold mb-4">Request Coverage</h3>
-              <p className="mb-2"><strong>Company:</strong> {selectedQuote.Compulife_company}</p>
-              <p className="mb-2"><strong>Product:</strong> {selectedQuote.Compulife_product}</p>
-              <p className="mb-4"><strong>Premium:</strong> {selectedQuote.Compulife_premiumM ? `$${parseFloat(selectedQuote.Compulife_premiumM).toFixed(2)} /mo` : `$${parseFloat(selectedQuote.Compulife_premiumAnnual).toFixed(2)} /yr`}</p>
-              <input type="text" name="name" placeholder="Your Name" autoComplete="name" value={userContact.name} onChange={handleModalChange} className="w-full mb-2 p-2 border rounded" />
-              <input type="email" name="email" placeholder="Your Email" autoComplete="email" value={userContact.email} onChange={handleModalChange} className="w-full mb-4 p-2 border rounded" />
-              <div className="flex justify-end gap-2">
-                <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-gray-300 rounded">Cancel</button>
-                <button onClick={handleModalSubmit} className="px-4 py-2 bg-[#407C51] text-white rounded">Send</button>
+          <div style={styles.modal}>
+            <div style={styles.modalContent}>
+              <h3 style={styles.modalTitle}>Request Coverage</h3>
+              <p style={{ marginBottom: "0.5rem" }}><strong>Company:</strong> {selectedQuote.Compulife_company}</p>
+              <p style={{ marginBottom: "0.5rem" }}><strong>Product:</strong> {selectedQuote.Compulife_product}</p>
+              <p style={{ marginBottom: "1.5rem" }}>
+                <strong>Premium:</strong> {selectedQuote.Compulife_premiumM ? 
+                  `$${parseFloat(selectedQuote.Compulife_premiumM).toFixed(2)} /mo` : 
+                  `$${parseFloat(selectedQuote.Compulife_premiumAnnual).toFixed(2)} /yr`}
+              </p>
+              <input 
+                type="text" 
+                name="name" 
+                placeholder="Your Name" 
+                autoComplete="name" 
+                value={userContact.name} 
+                onChange={handleModalChange} 
+                style={styles.modalInput} 
+              />
+              <input 
+                type="email" 
+                name="email" 
+                placeholder="Your Email" 
+                autoComplete="email" 
+                value={userContact.email} 
+                onChange={handleModalChange} 
+                style={styles.modalInput} 
+              />
+              <div style={styles.buttonGroup}>
+                <button 
+                  onClick={() => setShowModal(false)} 
+                  style={styles.cancelButton}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = styles.cancelButtonHover.backgroundColor}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = styles.cancelButton.backgroundColor}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleModalSubmit} 
+                  style={styles.ctaButton}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = styles.ctaButtonHover.backgroundColor}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = styles.ctaButton.backgroundColor}
+                >
+                  Send
+                </button>
               </div>
             </div>
           </div>
@@ -284,5 +684,3 @@ const quotes = json?.Compulife_ComparisonResults?.Compulife_Results || [];
 };
 
 export default CalculatorForm;
-
-
