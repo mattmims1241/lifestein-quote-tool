@@ -41,7 +41,8 @@ app.post('/api/quote', async (req, res) => {
       Smoker: originalPayload.Smoker || "N",
       SortOverride1: "M", // Hard-coded to match curl example
       State: originalPayload.State || "5", // Hard-coded to match curl example
-      UserLocation: "json" // Hard-coded to match curl example
+      UserLocation: "json", // Hard-coded to match curl example
+      NitocinePouch: originalPayload.NitocinePouch === "Y" ? true:false
     };
     
     // Prepare the API URL with query parameters
@@ -56,10 +57,10 @@ app.post('/api/quote', async (req, res) => {
     const url = `https://${COMPULIFE_DOMAIN}/api/request/?COMPULIFEAUTHORIZATIONID=${COMPULIFE_AUTH_ID}&REMOTE_IP=${REMOTE_IP}&COMPULIFE=${compulifeParamValue}`;
     
     // console.log("Sending request to CompuLife API...");
-    // console.log("Original Payload:", JSON.stringify(originalPayload, null, 2));
+    console.log("Original Payload:", JSON.stringify(originalPayload, null, 2));
     // console.log("Formatted Payload:", JSON.stringify(formattedPayload, null, 2));
     // console.log("API URL (truncated):", url.substring(0, 100) + "...");
-    console.log(url);
+    //console.log(url);
     
     // Make the GET request to the CompuLife API
     const response = await fetch(url, {
@@ -68,7 +69,7 @@ app.post('/api/quote', async (req, res) => {
         'Accept': 'application/json'
       }
     });
-    console.log(response);
+    //console.log(response);
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`🛑 CompuLife API Error (${response.status}):`, errorText);

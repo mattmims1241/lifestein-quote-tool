@@ -331,7 +331,8 @@ const CalculatorForm = () => {
       Inches: inches,
       Weight: weight,
       DoSubAbuse: "ON",
-      Alcohol: formData.alcoholUse
+      Alcohol: formData.alcoholUse,
+      NitocinePouch: formData.nicotinePouch
     };
 
     try {
