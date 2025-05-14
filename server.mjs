@@ -15,17 +15,22 @@ const PORT = process.env.PORT || 5000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Enable CORS with specific origin settings
+// Enable CORS with all origins
 app.use(cors());
 app.use(express.json());
 
-// Serve the static files from the built frontend
-app.use(express.static(path.join(__dirname, 'dist')));
-
+// API routes first
 app.post('/api/quote', async (req, res) => {
   try {
     // Get the original payload from the request
     const originalPayload = req.body.COMPULIFE;
+    
+    if (!originalPayload) {
+      return res.status(400).json({
+        error: 'Bad request',
+        message: 'Missing COMPULIFE data in request body'
+      });
+    }
     
     // Create a reformatted payload with only the needed fields in the exact order needed
     const formattedPayload = {
@@ -55,26 +60,22 @@ app.post('/api/quote', async (req, res) => {
     // Convert the payload to a URL-encoded JSON string
     const compulifeParamValue = encodeURIComponent(JSON.stringify(formattedPayload));
     
-    // Build the full URL with query parameters
-    const url = `https://${COMPULIFE_DOMAIN}/api/request/?COMPULIFEAUTHORIZATIONID=${COMPULIFE_AUTH_ID}&REMOTE_IP=${REMOTE_IP}&COMPULIFE=${compulifeParamValue}`;
+    // Build the full URL with query parameters - avoid using template literals with URL params
+    const apiUrl = `https://${COMPULIFE_DOMAIN}/api/request/?COMPULIFEAUTHORIZATIONID=${COMPULIFE_AUTH_ID}&REMOTE_IP=${REMOTE_IP}&COMPULIFE=${compulifeParamValue}`;
     
-    // console.log("Sending request to CompuLife API...");
-    console.log("Original Payload:", JSON.stringify(originalPayload, null, 2));
-    // console.log("Formatted Payload:", JSON.stringify(formattedPayload, null, 2));
-    // console.log("API URL (truncated):", url.substring(0, 100) + "...");
-    //console.log(url);
+    console.log("Processing quote request...");
     
     // Make the GET request to the CompuLife API
-    const response = await fetch(url, {
+    const response = await fetch(apiUrl, {
       method: 'GET',
       headers: {
         'Accept': 'application/json'
       }
     });
-    //console.log(response);
+    
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`🛑 CompuLife API Error (${response.status}):`, errorText);
+      console.error(`CompuLife API Error (${response.status}):`, errorText);
       return res.status(response.status).json({ 
         error: 'Failed to get quote from CompuLife',
         details: errorText,
@@ -85,7 +86,7 @@ app.post('/api/quote', async (req, res) => {
     const data = await response.json();
     return res.json(data);
   } catch (err) {
-    console.error('💥 Server Error:', err.message || err);
+    console.error('Server Error:', err.message || err);
     return res.status(500).json({ 
       error: 'Internal server error',
       message: err.message || 'Unknown error'
@@ -93,11 +94,20 @@ app.post('/api/quote', async (req, res) => {
   }
 });
 
-// For all other routes, serve the React app
-app.get('*', (req, res) => {
+// Serve static files after API routes
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Catch-all route handler - must be the last route
+app.use((req, res, next) => {
+  // If the request is for an API endpoint but didn't match our defined API routes
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  
+  // For all other routes, serve the index.html from the dist folder
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
