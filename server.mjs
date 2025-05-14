@@ -3,22 +3,24 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import fetch from 'node-fetch'; // make sure this is installed!
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Get the directory name of the current module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Enable CORS with specific origin settings
-app.use(cors({
-  origin: [
-    'http://localhost:5173', 
-    'http://localhost:5174'
-  ],
-  methods: ['GET', 'POST'],
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json());
+
+// Serve the static files from the built frontend
+app.use(express.static(path.join(__dirname, 'dist')));
 
 app.post('/api/quote', async (req, res) => {
   try {
@@ -89,6 +91,11 @@ app.post('/api/quote', async (req, res) => {
       message: err.message || 'Unknown error'
     });
   }
+});
+
+// For all other routes, serve the React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 app.listen(PORT, () => {
