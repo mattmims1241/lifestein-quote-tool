@@ -1,16 +1,13 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
 # Copy package files and install dependencies
 COPY package*.json ./
-RUN npm install --no-optional
+RUN npm install
 
 # Copy the rest of the application code
 COPY . .
-
-# Explicitly create the dist directory if needed 
-RUN mkdir -p dist
 
 # Build the frontend
 RUN npm run build
