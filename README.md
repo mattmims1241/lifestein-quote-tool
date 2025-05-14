@@ -18,15 +18,27 @@ npm run start:all
 
 This application can be deployed using Docker. The Dockerfile is configured to build the frontend and serve it from the backend.
 
-### Building the Docker Image
+### Using Docker Compose (Recommended)
+
+The easiest way to run the application with Docker is using docker-compose:
 
 ```bash
-docker build -t lifestein-quote-tool .
+# Build and start the container
+docker-compose up -d
+
+# Stop the container
+docker-compose down
 ```
 
-### Running the Docker Container
+### Manual Docker Commands
+
+If you prefer to use Docker directly:
 
 ```bash
+# Build the Docker image
+docker build -t lifestein-quote-tool .
+
+# Run the Docker container
 docker run -p 5000:5000 \
   -e COMPULIFE_DOMAIN=compulifeapi.com \
   -e COMPULIFE_AUTH_ID=your_auth_id \
@@ -55,19 +67,4 @@ This project uses:
 - **Frontend**: React with Vite for fast development
 - **Styling**: TailwindCSS for utility-first CSS
 - **Backend**: Express.js for the API server
-- **API Integration**: Node-fetch for CompuLife API requests
-
-## React + Vite
-
-This project was built with React and Vite, providing a minimal setup with HMR and ESLint rules.
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **API Integration**: Node-fetch for CompuLife API requests 
