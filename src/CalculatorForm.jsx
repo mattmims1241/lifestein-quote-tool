@@ -12,7 +12,10 @@ const styles = {
     justifyContent: "center",
     padding: "2rem",
     background: "linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%)",
-    fontFamily: "'Segoe UI', Roboto, 'Helvetica Neue', sans-serif"
+    fontFamily: "'Segoe UI', Roboto, 'Helvetica Neue', sans-serif",
+    '@media (max-width: 768px)': {
+      padding: "1rem"
+    }
   },
   card: {
     width: "100%",
@@ -24,7 +27,13 @@ const styles = {
     backdropFilter: "blur(10px)",
     border: "1px solid rgba(255, 255, 255, 0.2)",
     overflow: "hidden",
-    position: "relative"
+    position: "relative",
+    '@media (max-width: 768px)': {
+      padding: "1.5rem"
+    },
+    '@media (max-width: 480px)': {
+      padding: "1.25rem"
+    }
   },
   cardAccent: {
     position: "absolute",
@@ -36,26 +45,45 @@ const styles = {
   },
   header: {
     textAlign: "center",
-    marginBottom: "2.5rem"
+    marginBottom: "2.5rem",
+    '@media (max-width: 768px)': {
+      marginBottom: "1.5rem"
+    }
   },
   title: {
     fontSize: "2.5rem",
     fontWeight: "800",
     color: "#0a855c",
-    marginBottom: "0.75rem"
+    marginBottom: "0.75rem",
+    '@media (max-width: 768px)': {
+      fontSize: "2rem"
+    },
+    '@media (max-width: 480px)': {
+      fontSize: "1.75rem"
+    }
   },
   subtitle: {
     fontSize: "1.1rem",
     color: "#64748b",
-    fontWeight: "500"
+    fontWeight: "500",
+    '@media (max-width: 480px)': {
+      fontSize: "1rem"
+    }
   },
   form: {
     display: "grid",
     gridTemplateColumns: "repeat(2, 1fr)",
-    gap: "1.5rem"
+    gap: "1.5rem",
+    '@media (max-width: 768px)': {
+      gridTemplateColumns: "1fr",
+      gap: "1rem"
+    }
   },
   fullWidth: {
-    gridColumn: "span 2"
+    gridColumn: "span 2",
+    '@media (max-width: 768px)': {
+      gridColumn: "1"
+    }
   },
   formGroup: {
     display: "flex",
@@ -100,7 +128,11 @@ const styles = {
   },
   flexRow: {
     display: "flex",
-    gap: "1rem"
+    gap: "1rem",
+    '@media (max-width: 480px)': {
+      flexDirection: "column",
+      gap: "0.5rem"
+    }
   },
   button: {
     gridColumn: "span 2",
@@ -115,7 +147,12 @@ const styles = {
     cursor: "pointer",
     transition: "all 0.2s ease",
     boxShadow: "0 4px 12px rgba(10, 133, 92, 0.15)",
-    outline: "none"
+    outline: "none",
+    '@media (max-width: 768px)': {
+      gridColumn: "1",
+      marginTop: "1rem",
+      fontSize: "1rem"
+    }
   },
   buttonHover: {
     backgroundColor: "#056c4a",
@@ -139,7 +176,10 @@ const styles = {
     alignItems: "center",
     textAlign: "center",
     backgroundColor: "white",
-    transition: "all 0.3s ease"
+    transition: "all 0.3s ease",
+    '@media (max-width: 480px)': {
+      padding: "1rem"
+    }
   },
   resultCardHover: {
     transform: "translateY(-5px)",
@@ -150,13 +190,21 @@ const styles = {
     fontWeight: "700",
     textAlign: "center",
     marginBottom: "1.5rem",
-    color: "#0f172a"
+    color: "#0f172a",
+    '@media (max-width: 480px)': {
+      fontSize: "1.25rem",
+      marginBottom: "1rem"
+    }
   },
   price: {
     fontSize: "1.25rem",
     fontWeight: "700",
     color: "#0a855c",
-    margin: "0.75rem 0"
+    margin: "0.75rem 0",
+    '@media (max-width: 480px)': {
+      fontSize: "1.1rem",
+      margin: "0.5rem 0"
+    }
   },
   ctaButton: {
     backgroundColor: "#0a855c",
@@ -180,7 +228,9 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     zIndex: "9999",
-    backdropFilter: "blur(5px)"
+    backdropFilter: "blur(5px)",
+    padding: "1rem",
+    boxSizing: "border-box"
   },
   modalContent: {
     backgroundColor: "white",
@@ -188,13 +238,19 @@ const styles = {
     borderRadius: "1rem",
     maxWidth: "450px",
     width: "100%",
-    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+    '@media (max-width: 480px)': {
+      padding: "1.5rem"
+    }
   },
   modalTitle: {
     fontSize: "1.5rem",
     fontWeight: "700",
     marginBottom: "1rem",
-    color: "#0f172a"
+    color: "#0f172a",
+    '@media (max-width: 480px)': {
+      fontSize: "1.25rem"
+    }
   },
   modalInput: {
     width: "100%",
@@ -202,13 +258,18 @@ const styles = {
     marginBottom: "1rem",
     borderRadius: "0.5rem",
     border: "1.5px solid #e2e8f0",
-    fontSize: "1rem"
+    fontSize: "1rem",
+    boxSizing: "border-box"
   },
   buttonGroup: {
     display: "flex",
     justifyContent: "flex-end",
     gap: "1rem",
-    marginTop: "1rem"
+    marginTop: "1rem",
+    '@media (max-width: 480px)': {
+      flexDirection: "column",
+      gap: "0.5rem"
+    }
   },
   cancelButton: {
     padding: "0.75rem 1rem",
@@ -218,7 +279,10 @@ const styles = {
     fontWeight: "600",
     border: "none",
     cursor: "pointer",
-    transition: "all 0.2s ease"
+    transition: "all 0.2s ease",
+    '@media (max-width: 480px)': {
+      order: "2"
+    }
   },
   cancelButtonHover: {
     backgroundColor: "#cbd5e1"
@@ -229,6 +293,20 @@ const styles = {
     textAlign: "center",
     fontSize: "0.875rem",
     fontWeight: "500"
+  },
+  resultsGrid: {
+    display: "grid", 
+    gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", 
+    gap: "1.5rem", 
+    marginTop: "1.5rem",
+    '@media (max-width: 768px)': {
+      gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+      gap: "1rem"
+    },
+    '@media (max-width: 480px)': {
+      gridTemplateColumns: "1fr",
+      gap: "1rem"
+    }
   }
 };
 
@@ -259,7 +337,37 @@ const useFocus = (initialState = false) => {
   return { isFocused, handleFocus, handleBlur };
 };
 
+// Since inline media queries don't work with React's inline styles, let's implement a simple responsive solution
+const useResponsiveStyles = () => {
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  const getResponsiveStyle = (styleObj) => {
+    let finalStyle = {...styleObj};
+    delete finalStyle['@media (max-width: 768px)'];
+    delete finalStyle['@media (max-width: 480px)'];
+    
+    if (windowWidth <= 768 && styleObj['@media (max-width: 768px)']) {
+      finalStyle = {...finalStyle, ...styleObj['@media (max-width: 768px)']};
+    }
+    
+    if (windowWidth <= 480 && styleObj['@media (max-width: 480px)']) {
+      finalStyle = {...finalStyle, ...styleObj['@media (max-width: 480px)']};
+    }
+    
+    return finalStyle;
+  };
+  
+  return { getResponsiveStyle };
+};
+
 const CalculatorForm = () => {
+  const { getResponsiveStyle } = useResponsiveStyles();
   const [formData, setFormData] = useState({
     zipCode: "35243",
     age: "",
@@ -417,7 +525,7 @@ const CalculatorForm = () => {
   const renderInput = (name, value, placeholder = "", type = "text", required = true) => {
     const focus = useFocus();
     const inputStyle = {
-      ...styles.input,
+      ...getResponsiveStyle(styles.input),
       ...(focus.isFocused ? styles.inputFocus : {})
     };
     
@@ -437,20 +545,20 @@ const CalculatorForm = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={getResponsiveStyle(styles.container)}>
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        style={styles.card}
+        style={getResponsiveStyle(styles.card)}
       >
         <div style={styles.cardAccent}></div>
-        <div style={styles.header}>
-          <h2 style={styles.title}>🛡️ Life Insurance Quotes</h2>
-          <p style={styles.subtitle}>Get instant, personalized term life insurance rates</p>
+        <div style={getResponsiveStyle(styles.header)}>
+          <h2 style={getResponsiveStyle(styles.title)}>🛡️ Life Insurance Quotes</h2>
+          <p style={getResponsiveStyle(styles.subtitle)}>Get instant, personalized term life insurance rates</p>
         </div>
         
-        <form onSubmit={handleSubmit} style={styles.form}>
+        <form onSubmit={handleSubmit} style={getResponsiveStyle(styles.form)}>
           <div style={styles.formGroup}>
             <label style={styles.label}>ZIP Code</label>
             {renderInput("zipCode", formData.zipCode)}
@@ -461,9 +569,9 @@ const CalculatorForm = () => {
             {renderInput("age", formData.age, "", "number")}
           </div>
           
-          <div style={{...styles.formGroup, ...styles.fullWidth}}>
+          <div style={{...styles.formGroup, ...getResponsiveStyle(styles.fullWidth)}}>
             <label style={styles.label}>Height (ft & in)</label>
-            <div style={styles.flexRow}>
+            <div style={getResponsiveStyle(styles.flexRow)}>
               {renderInput("heightFeet", formData.heightFeet, "ft", "number")}
               {renderInput("heightInches", formData.heightInches, "in", "number")}
             </div>
@@ -480,10 +588,42 @@ const CalculatorForm = () => {
               name="faceAmount" 
               value={formData.faceAmount} 
               onChange={handleChange} 
-              style={styles.select}
+              style={getResponsiveStyle(styles.select)}
               required
             >
-              {[100000, 200000, 300000, 400000, 500000, 750000, 1000000].map(val => (
+              {[
+                10000, 
+                50000, 
+                100000, 
+                150000, 
+                200000, 
+                250000, 
+                300000, 
+                350000, 
+                400000, 
+                450000, 
+                500000, 
+                550000, 
+                600000, 
+                650000, 
+                700000, 
+                750000, 
+                800000, 
+                850000, 
+                900000, 
+                950000, 
+                1000000, 
+                1250000, 
+                1500000, 
+                1750000, 
+                2000000, 
+                2500000, 
+                3000000, 
+                3500000, 
+                4000000, 
+                4500000, 
+                5000000
+              ].map(val => (
                 <option key={val} value={val}>${val.toLocaleString()}</option>
               ))}
             </select>
@@ -495,7 +635,7 @@ const CalculatorForm = () => {
               name="termLength" 
               value={formData.termLength} 
               onChange={handleChange} 
-              style={styles.select}
+              style={getResponsiveStyle(styles.select)}
               required
             >
               {["10", "15", "20", "25", "30", "35", "40"].map(val => (
@@ -510,7 +650,7 @@ const CalculatorForm = () => {
               name="sex" 
               value={formData.sex} 
               onChange={handleChange} 
-              style={styles.select}
+              style={getResponsiveStyle(styles.select)}
               required
             >
               <option value="M">Male</option>
@@ -524,7 +664,7 @@ const CalculatorForm = () => {
               name="smoker" 
               value={formData.smoker} 
               onChange={handleChange} 
-              style={styles.select}
+              style={getResponsiveStyle(styles.select)}
               required
             >
               <option value="N">No</option>
@@ -538,7 +678,7 @@ const CalculatorForm = () => {
               name="nicotinePouch" 
               value={formData.nicotinePouch} 
               onChange={handleChange} 
-              style={styles.select}
+              style={getResponsiveStyle(styles.select)}
               required
             >
               <option value="N">No</option>
@@ -552,7 +692,7 @@ const CalculatorForm = () => {
               name="alcoholUse" 
               value={formData.alcoholUse} 
               onChange={handleChange} 
-              style={styles.select}
+              style={getResponsiveStyle(styles.select)}
               required
             >
               <option value="N">No</option>
@@ -564,7 +704,7 @@ const CalculatorForm = () => {
             type="submit"
             disabled={loading}
             style={{
-              ...styles.button,
+              ...getResponsiveStyle(styles.button),
               ...(loading ? styles.buttonDisabled : {})
             }}
             onMouseOver={(e) => !loading && (e.currentTarget.style.backgroundColor = styles.buttonHover.backgroundColor)}
@@ -585,18 +725,13 @@ const CalculatorForm = () => {
               exit={{ opacity: 0 }} 
               style={{ marginTop: "3rem" }}
             >
-              <h3 style={styles.resultsTitle}>📋 Top 15 Cheapest Quotes</h3>
-              <div style={{ 
-                display: "grid", 
-                gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", 
-                gap: "1.5rem", 
-                marginTop: "1.5rem" 
-              }}>
+              <h3 style={getResponsiveStyle(styles.resultsTitle)}>📋 Top 15 Cheapest Quotes</h3>
+              <div style={getResponsiveStyle(styles.resultsGrid)}>
                 {results.map((q, i) => (
                   <div 
                     key={i} 
                     style={{
-                      ...styles.resultCard,
+                      ...getResponsiveStyle(styles.resultCard),
                       ...(hoverIndex === i ? styles.resultCardHover : {})
                     }}
                     onMouseEnter={() => setHoverIndex(i)}
@@ -609,7 +744,7 @@ const CalculatorForm = () => {
                     />
                     <p style={{ fontWeight: "600", color: "#0a855c" }}>{q.Compulife_company}</p>
                     <p style={{ color: "#64748b", fontSize: "0.9rem" }}>{q.Compulife_product}</p>
-                    <p style={styles.price}>
+                    <p style={getResponsiveStyle(styles.price)}>
                       {q.Compulife_premiumM ? 
                         `$${parseFloat(q.Compulife_premiumM).toFixed(2)} /mo` : 
                         `$${parseFloat(q.Compulife_premiumAnnual).toFixed(2)} /yr`}
@@ -631,8 +766,8 @@ const CalculatorForm = () => {
 
         {showModal && selectedQuote && (
           <div style={styles.modal}>
-            <div style={styles.modalContent}>
-              <h3 style={styles.modalTitle}>Request Coverage</h3>
+            <div style={getResponsiveStyle(styles.modalContent)}>
+              <h3 style={getResponsiveStyle(styles.modalTitle)}>Request Coverage</h3>
               <p style={{ marginBottom: "0.5rem" }}><strong>Company:</strong> {selectedQuote.Compulife_company}</p>
               <p style={{ marginBottom: "0.5rem" }}><strong>Product:</strong> {selectedQuote.Compulife_product}</p>
               <p style={{ marginBottom: "1.5rem" }}>
@@ -647,7 +782,7 @@ const CalculatorForm = () => {
                 autoComplete="name" 
                 value={userContact.name} 
                 onChange={handleModalChange} 
-                style={styles.modalInput} 
+                style={getResponsiveStyle(styles.modalInput)} 
               />
               <input 
                 type="email" 
@@ -656,12 +791,12 @@ const CalculatorForm = () => {
                 autoComplete="email" 
                 value={userContact.email} 
                 onChange={handleModalChange} 
-                style={styles.modalInput} 
+                style={getResponsiveStyle(styles.modalInput)} 
               />
-              <div style={styles.buttonGroup}>
+              <div style={getResponsiveStyle(styles.buttonGroup)}>
                 <button 
                   onClick={() => setShowModal(false)} 
-                  style={styles.cancelButton}
+                  style={getResponsiveStyle(styles.cancelButton)}
                   onMouseOver={(e) => e.currentTarget.style.backgroundColor = styles.cancelButtonHover.backgroundColor}
                   onMouseOut={(e) => e.currentTarget.style.backgroundColor = styles.cancelButton.backgroundColor}
                 >
