@@ -398,32 +398,6 @@ const useResponsiveStyles = () => {
   return { getResponsiveStyle };
 };
 
-// Define Brevo API constants
-const API_URL = "https://api.brevo.com/v3/smtp/email";
-
-// Email sending function
-const sendEmail = async (emailData) => {
-  try {
-    const BREVO_API_KEY = import.meta.env.VITE_BREVO_API_KEY;
-    
-    if (!BREVO_API_KEY) {
-      console.error('Brevo API key is missing');
-      throw new Error('Email configuration error');
-    }
-    
-    const response = await axios.post(API_URL, emailData, {
-      headers: {
-        'Content-Type': 'application/json',
-        'api-key': BREVO_API_KEY
-      }
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Email sending error:', error.response?.data || error.message);
-    throw new Error('Failed to send email');
-  }
-};
-
 const CalculatorForm = () => {
   const { getResponsiveStyle } = useResponsiveStyles();
   const [formData, setFormData] = useState({
@@ -573,42 +547,30 @@ const CalculatorForm = () => {
       const quote = selectedQuote;
       const amount = Number(formData.faceAmount).toLocaleString();
       
-      // Create email content
-      const htmlContent = `
-        <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #0a855c;">Quote Request</h2>
-          <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>Customer Name:</strong> ${name}</p>
-            <p><strong>Customer Email:</strong> ${email}</p>
-            <p><strong>Term Length:</strong> ${formData.termLength} years</p>
-            <p><strong>Coverage Amount:</strong> $${amount}</p>
-            <p><strong>Insurance Company:</strong> ${quote.Compulife_company}</p>
-          </div>
-        </div>
-      `;
-      
-      // Prepare email data
+      // Prepare data for server endpoint
       const emailData = {
-        sender: {
-          name: "Lifestein Quote Tool",
-          email: "mattmims@insurems.com"
-        },
-        to: [
-          {
-            email: "mattmims@lifestein.com",
-            name: "Matt Mims"
-          },
-          {
-            email: "teamtejas7@gmail.com",
-            name: "Team"
-          }
-        ],
-        subject: `Quote Request - ${quote.Compulife_company}`,
-        htmlContent: htmlContent
+        name,
+        email,
+        companyName: quote.Compulife_company,
+        product: quote.Compulife_product,
+        termLength: formData.termLength,
+        coverageAmount: amount
       };
       
-      // Send the email
-      await sendEmail(emailData);
+      // Send the request to our backend API
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(emailData)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to send email');
+      }
+      
       console.log("Email sent successfully");
       
       // Close the modal and show success message
