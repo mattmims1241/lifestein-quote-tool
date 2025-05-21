@@ -1,7 +1,39 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { companyLogos } from "./data/companyLogos.js";
+import axios from "axios";
 import './index.css';
+
+// Check if environment variable is working
+console.log('API key available:', import.meta.env.VITE_BREVO_API_KEY ? 'Yes' : 'No');
+
+// Add keyframes for spinner animation
+const spinAnimation = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
+// Create a component to safely inject styles
+const StyleInjector = () => {
+  useEffect(() => {
+    // Only add keyframes in browser environment
+    const styleSheet = document.createElement('style');
+    styleSheet.type = 'text/css';
+    styleSheet.innerText = spinAnimation;
+    document.head.appendChild(styleSheet);
+
+    // Cleanup on unmount
+    return () => {
+      if (styleSheet && document.head.contains(styleSheet)) {
+        document.head.removeChild(styleSheet);
+      }
+    };
+  }, []);
+  
+  return null;
+};
 
 // Premium styles directly in component
 const styles = {
@@ -366,6 +398,32 @@ const useResponsiveStyles = () => {
   return { getResponsiveStyle };
 };
 
+// Define Brevo API constants
+const API_URL = "https://api.brevo.com/v3/smtp/email";
+
+// Email sending function
+const sendEmail = async (emailData) => {
+  try {
+    const BREVO_API_KEY = import.meta.env.VITE_BREVO_API_KEY;
+    
+    if (!BREVO_API_KEY) {
+      console.error('Brevo API key is missing');
+      throw new Error('Email configuration error');
+    }
+    
+    const response = await axios.post(API_URL, emailData, {
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': BREVO_API_KEY
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Email sending error:', error.response?.data || error.message);
+    throw new Error('Failed to send email');
+  }
+};
+
 const CalculatorForm = () => {
   const { getResponsiveStyle } = useResponsiveStyles();
   const [formData, setFormData] = useState({
@@ -388,6 +446,7 @@ const CalculatorForm = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState(null);
   const [userContact, setUserContact] = useState({ name: "", email: "" });
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [hoverIndex, setHoverIndex] = useState(null);
   const resultsRef = useRef(null);
 
@@ -507,18 +566,65 @@ const CalculatorForm = () => {
     setUserContact((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleModalSubmit = () => {
-    const { name, email } = userContact;
-    const quote = selectedQuote;
-    const safeName = encodeURIComponent(name);
-    const safeEmail = encodeURIComponent(email);
-    const amount = Number(formData.faceAmount).toLocaleString();
-
-    const body = `I am interested in submitting an application for ${safeName}, ${formData.termLength}-year term, $${amount}, ${quote.Compulife_company}.%0D%0AEmail: ${safeEmail}`;
-    const mailto = `mailto:mattmims@insurems.com?subject=Quote Request - ${quote.Compulife_company}&body=${body}`;
-
-    window.location.href = mailto;
-    setShowModal(false);
+  const handleModalSubmit = async () => {
+    try {
+      setLoading(true);
+      const { name, email } = userContact;
+      const quote = selectedQuote;
+      const amount = Number(formData.faceAmount).toLocaleString();
+      
+      // Create email content
+      const htmlContent = `
+        <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #0a855c;">Quote Request</h2>
+          <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>Customer Name:</strong> ${name}</p>
+            <p><strong>Customer Email:</strong> ${email}</p>
+            <p><strong>Term Length:</strong> ${formData.termLength} years</p>
+            <p><strong>Coverage Amount:</strong> $${amount}</p>
+            <p><strong>Insurance Company:</strong> ${quote.Compulife_company}</p>
+          </div>
+        </div>
+      `;
+      
+      // Prepare email data
+      const emailData = {
+        sender: {
+          name: "Lifestein Quote Tool",
+          email: "mattmims@insurems.com"
+        },
+        to: [
+          {
+            email: "mattmims@lifestein.com",
+            name: "Matt Mims"
+          },
+          {
+            email: "teamtejas7@gmail.com",
+            name: "Team"
+          }
+        ],
+        subject: `Quote Request - ${quote.Compulife_company}`,
+        htmlContent: htmlContent
+      };
+      
+      // Send the email
+      await sendEmail(emailData);
+      console.log("Email sent successfully");
+      
+      // Close the modal and show success message
+      setShowModal(false);
+      setShowSuccessMessage(true);
+      
+      // Hide success message after 5 seconds
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+      }, 5000);
+    } catch (error) {
+      console.error("Failed to send email:", error);
+      alert("There was an error sending your request. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Render focused styles for inputs
@@ -546,6 +652,7 @@ const CalculatorForm = () => {
 
   return (
     <div style={getResponsiveStyle(styles.container)}>
+      <StyleInjector />
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -764,57 +871,111 @@ const CalculatorForm = () => {
           )}
         </AnimatePresence>
 
-        {showModal && selectedQuote && (
-          <div style={styles.modal}>
-            <div style={getResponsiveStyle(styles.modalContent)}>
-              <h3 style={getResponsiveStyle(styles.modalTitle)}>Request Coverage</h3>
-              <p style={{ marginBottom: "0.5rem" }}><strong>Company:</strong> {selectedQuote.Compulife_company}</p>
-              <p style={{ marginBottom: "0.5rem" }}><strong>Product:</strong> {selectedQuote.Compulife_product}</p>
-              <p style={{ marginBottom: "1.5rem" }}>
-                <strong>Premium:</strong> {selectedQuote.Compulife_premiumM ? 
-                  `$${parseFloat(selectedQuote.Compulife_premiumM).toFixed(2)} /mo` : 
-                  `$${parseFloat(selectedQuote.Compulife_premiumAnnual).toFixed(2)} /yr`}
-              </p>
-              <input 
-                type="text" 
-                name="name" 
-                placeholder="Your Name" 
-                autoComplete="name" 
-                value={userContact.name} 
-                onChange={handleModalChange} 
-                style={getResponsiveStyle(styles.modalInput)} 
-              />
-              <input 
-                type="email" 
-                name="email" 
-                placeholder="Your Email" 
-                autoComplete="email" 
-                value={userContact.email} 
-                onChange={handleModalChange} 
-                style={getResponsiveStyle(styles.modalInput)} 
-              />
-              <div style={getResponsiveStyle(styles.buttonGroup)}>
-                <button 
-                  onClick={() => setShowModal(false)} 
-                  style={getResponsiveStyle(styles.cancelButton)}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = styles.cancelButtonHover.backgroundColor}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = styles.cancelButton.backgroundColor}
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={handleModalSubmit} 
-                  style={styles.ctaButton}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = styles.ctaButtonHover.backgroundColor}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = styles.ctaButton.backgroundColor}
-                >
-                  Send
-                </button>
+        <AnimatePresence>
+          {showModal && selectedQuote && (
+            <motion.div 
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -50 }}
+              transition={{ duration: 0.3 }}
+              style={styles.modal}
+            >
+              <div style={getResponsiveStyle(styles.modalContent)}>
+                <h3 style={getResponsiveStyle(styles.modalTitle)}>Request Coverage</h3>
+                <p style={{ marginBottom: "0.5rem" }}><strong>Company:</strong> {selectedQuote.Compulife_company}</p>
+                <p style={{ marginBottom: "0.5rem" }}><strong>Product:</strong> {selectedQuote.Compulife_product}</p>
+                <p style={{ marginBottom: "1.5rem" }}>
+                  <strong>Premium:</strong> {selectedQuote.Compulife_premiumM ? 
+                    `$${parseFloat(selectedQuote.Compulife_premiumM).toFixed(2)} /mo` : 
+                    `$${parseFloat(selectedQuote.Compulife_premiumAnnual).toFixed(2)} /yr`}
+                </p>
+                <input 
+                  type="text" 
+                  name="name" 
+                  placeholder="Your Name" 
+                  autoComplete="name" 
+                  value={userContact.name} 
+                  onChange={handleModalChange} 
+                  style={getResponsiveStyle(styles.modalInput)} 
+                />
+                <input 
+                  type="email" 
+                  name="email" 
+                  placeholder="Your Email" 
+                  autoComplete="email" 
+                  value={userContact.email} 
+                  onChange={handleModalChange} 
+                  style={getResponsiveStyle(styles.modalInput)} 
+                />
+                <div style={getResponsiveStyle(styles.buttonGroup)}>
+                  <button 
+                    onClick={() => setShowModal(false)} 
+                    style={getResponsiveStyle(styles.cancelButton)}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = styles.cancelButtonHover.backgroundColor}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = styles.cancelButton.backgroundColor}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleModalSubmit} 
+                    style={{
+                      ...styles.ctaButton,
+                      ...(loading ? { opacity: 0.7, cursor: 'wait' } : {})
+                    }}
+                    disabled={loading}
+                    onMouseOver={(e) => !loading && (e.currentTarget.style.backgroundColor = styles.ctaButtonHover.backgroundColor)}
+                    onMouseOut={(e) => !loading && (e.currentTarget.style.backgroundColor = styles.ctaButton.backgroundColor)}
+                  >
+                    {loading ? (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                        <span style={{ width: '16px', height: '16px', borderRadius: '50%', borderTop: '2px solid #fff', borderRight: '2px solid transparent', animation: 'spin 1s linear infinite' }}></span>
+                        Sending...
+                      </div>
+                    ) : (
+                      'Send'
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
+
+      {/* Success Message */}
+      <AnimatePresence>
+        {showSuccessMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            transition={{ duration: 0.3 }}
+            style={{
+              position: 'fixed',
+              bottom: '20px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              backgroundColor: '#0a855c',
+              color: 'white',
+              padding: '1rem 2rem',
+              borderRadius: '0.75rem',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              zIndex: 1000,
+              fontSize: '1rem',
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Quote request sent successfully! We'll be in touch soon.
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
